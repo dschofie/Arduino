@@ -12,7 +12,9 @@ int PMW_50p = 127;
 int PMW_75p = 191;
 int PMW_100p = 255;
 
-const int pingPin = 12;
+const int pingPinFront = 12;
+const int pingPinRight = ?;
+const int pingPinLeft = ?;
 
 void setup() {
 Serial.begin(9600);
@@ -41,36 +43,40 @@ void loop() {
 //analogWrite(PWM2, PWM2_val);
 //analogWrite(PWM1, PWM1_val);
 
-  long duration, inches, cm;
+  long durationFront, inchesFront, cmFront;
+  long durationLeft, inchesLeft;
+  long durationRight, inchesRight;
+  
+  configurePingSensors();
 
-  // The PING))) is triggered by a HIGH pulse of 2 or more microseconds.
-  // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
-  pinMode(pingPin, OUTPUT);
-  digitalWrite(pingPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(pingPin, HIGH);
-  delayMicroseconds(5);
-  digitalWrite(pingPin, LOW);
-
-  // The same pin is used to read the signal from the PING))): a HIGH pulse
-  // whose duration is the time (in microseconds) from the sending of the ping
-  // to the reception of its echo off of an object.
-  pinMode(pingPin, INPUT);
-  duration = pulseIn(pingPin, HIGH);
-
+  pinMode(pingPinFront, INPUT);
+  durationFront = pulseIn(pingPinFront, HIGH);
+  pinMode(pingPinRight, INPUT);
+  durationFront = pulseIn(pingPinFront, HIGH);
+  pinMode(pingPinLeft, INPUT);
+  durationFront = pulseIn(pingPinFront, HIGH);
+  
   // convert the time into a distance
-  inches = microsecondsToInches(duration);
-  cm = microsecondsToCentimeters(duration);
+  inchesFront = microsecondsToInches(durationFront);
+  cmFront = microsecondsToCentimeters(durationFront);
+
+  inchesLeft = microsecondsToInches(durationLeft);
+  inchesRight = microsecondsToInches(durationRight);
 
   Serial.print(inches);
   Serial.print("in, ");
   Serial.print(cm);
   Serial.print("cm");
   Serial.println();
-  if(inches < 4)
+  if(inchesFront < 4)
   {
+    if(inchesLeft > inchesRight){
+      spinCounterClockwise(PMW_50p, 500);
+    } else {
+      spinClockwise(PMW_50p, 500);
+    }
 //    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-      backwards-(PMW_50p,1000);
+    backwards-(PMW_50p,1000);
     delay(100);                       // wait for a second
 //      digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
 //      delay(100); 
@@ -92,6 +98,36 @@ void spinClockwise(int rotation_speed, int waitTime) {
   analogWrite(PWM2, 0);
   analogWrite(PWM1, 0);
   delay(waitTime);
+}
+
+void configurePingSensors(){
+
+  // The same pin is used to read the signal from the PING))): a HIGH pulse
+  // whose duration is the time (in microseconds) from the sending of the ping
+  // to the reception of its echo off of an object.
+  
+  // The PING))) is triggered by a HIGH pulse of 2 or more microseconds.
+  // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
+  pinMode(pingPinFront, OUTPUT);
+  digitalWrite(pingPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(pingPinFront, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(pingPinFront, LOW);
+
+  pinMode(pingPinLeft, OUTPUT);
+  digitalWrite(pingPinLeft, LOW);
+  delayMicroseconds(2);
+  digitalWrite(pingPinLeft, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(pingPinLeft, LOW);
+
+  pinMode(pingPinRight, OUTPUT);
+  digitalWrite(pingPinRight, LOW);
+  delayMicroseconds(2);
+  digitalWrite(pingPinRight, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(pingPinRight, LOW);
 }
 
 void spinCounterClockwise(int rotation_speed, int waitTime) {
